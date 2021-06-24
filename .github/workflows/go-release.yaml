@@ -1,0 +1,11 @@
+name: GoRelease
+
+on: create
+
+jobs:
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: ls tag name 
+        run: echo "tag name ${{ github.ref }}"
