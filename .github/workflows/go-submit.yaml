@@ -1,26 +1,49 @@
 name: GoSubmit
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - master
       - release-*
+  workflow_dispatch: {}
+
+env:
+  # Common versions
+  GO_VERSION: '1.16'
+  GO_REQUIRED_MIN_VERSION: ''
+  GOPATH: '/home/runner/work/zhiweiyin318/testAction/go'
+  GITHUB_REF: ${{ github.ref }}
+
+defaults:
+  run:
+    working-directory: go/src/zhiweiyin318/testAction
 
 jobs:
   release:
     name: get var
     runs-on: ubuntu-latest
     steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          path: go/src/zhiweiyin318/testAction
+      - name: install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
       - name: set release version
         id: vars
-        env:
-          RELEASE_NAME: ${GITHUB_REF#refs/tags/}
         run: |
-          echo "pr_version=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+          echo ${GITHUB_REF}
+          echo ${GITHUB_REF#refs/*/}
+          echo "TGA_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
           echo "::set-output name=RELEASE_VERSION::${GITHUB_REF#refs/*/}"
-      - name: show release version
-      env:
-      run: |
-        echo ${{ env.pr_version }}
-        echo ${{ steps.vars.outputs.RELEASE_VERSION }}
-        echo $RELEASE_NAME
+      - name: get release version
+        run: |
+          echo ${TGA_VERSION}
+          echo ${{ steps.vars.outputs.RELEASE_VERSION }}
+          echo "# Registration Operator $RELEASE_VERSION" > changelog.md
+          echo "See the [CHANGELOG](https://github.com/zhiweiyin318/registration-operator/blob/main/CHANGELOG/CHANGELOG-v0.1.md) for more details." >> changelog.md
+      - name: changelog
+        run: cat changelog.md
