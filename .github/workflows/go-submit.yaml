@@ -33,6 +33,14 @@ jobs:
         with:
           version: v0.10.0
           name: cluster1
+      - name: test secret
+        run: |
+          echo ${{ secrets.IMAGE_PULL_SECRET }} > secret1
+          echo ${IMAGE_PULL_SECRET} >> secret2
+          cat secret1
+          cat secret2
+        env:
+          IMAGE_PULL_SECRET: ${{ secrets.IMAGE_PULL_SECRET }}       
       - name: test kind
         run: |
           sleep 120
